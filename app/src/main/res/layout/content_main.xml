@@ -36,7 +36,8 @@
         android:layout_height="wrap_content"
         android:layout_below="@id/tv_email"
         android:inputType="textPersonName"
-        android:textSize="40sp"
+        android:maxWidth="150dp"
+        android:textSize="24sp"
         android:visibility="gone" />
 
     <Button
