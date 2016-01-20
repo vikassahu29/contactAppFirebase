@@ -1,7 +1,6 @@
 package com.example.vikas.contactapp.activity;
 
 import android.app.ProgressDialog;
-import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -38,10 +37,8 @@ public class RequestsActivity extends BaseActivity {
         Firebase contactRef = new Firebase(CONTACT_URL + PrefUtils.getUid(this));
         RecyclerView recyclerView = (RecyclerView) findViewById(R.id.recycler_view);
         mAdapter = new ContactViewAdapter(new ArrayList<Contact>());
-        recyclerView.setLayoutManager(new LinearLayoutManager(this,
-                (ActivityInfo.SCREEN_ORIENTATION_PORTRAIT == getResources()
-                        .getConfiguration().orientation ? LinearLayoutManager.VERTICAL :
-                        LinearLayoutManager.HORIZONTAL), false));
+        recyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL,
+                false));
         recyclerView.setAdapter(mAdapter);
         final ProgressDialog progressDialog = new ProgressDialog(this);
         progressDialog.setMessage(getString(R.string.loading_data));

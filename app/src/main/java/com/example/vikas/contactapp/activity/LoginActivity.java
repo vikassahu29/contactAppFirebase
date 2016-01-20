@@ -79,6 +79,7 @@ public class LoginActivity extends Activity implements View.OnClickListener {
                             case FirebaseError.INVALID_CREDENTIALS:
                             case FirebaseError.INVALID_PASSWORD:
                             case FirebaseError.INVALID_EMAIL:
+                            case FirebaseError.USER_DOES_NOT_EXIST:
                                 Toast.makeText(LoginActivity.this,
                                         R.string.invalid_credentials_error, Toast.LENGTH_SHORT)
                                         .show();

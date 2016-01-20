@@ -28,7 +28,7 @@
         <receiver
             android:name="com.google.android.gms.gcm.GcmReceiver"
             android:exported="true"
-            android:permission="com.google.android.c2dm.permission.SEND" >
+            android:permission="com.google.android.c2dm.permission.SEND">
             <intent-filter>
                 <action android:name="com.google.android.c2dm.intent.RECEIVE" />
                 <category android:name="com.example.vikas.contactapp" />
@@ -37,37 +37,39 @@
 
         <service
             android:name=".GcmListenerService"
-            android:exported="false" >
+            android:exported="false">
             <intent-filter>
                 <action android:name="com.google.android.c2dm.intent.RECEIVE" />
             </intent-filter>
         </service>
+
         <service
             android:name=".InstanceIDListenerService"
             android:exported="false">
             <intent-filter>
-                <action android:name="com.google.android.gms.iid.InstanceID"/>
+                <action android:name="com.google.android.gms.iid.InstanceID" />
             </intent-filter>
         </service>
 
         <service
             android:name=".RegistrationIntentService"
-            android:exported="false">
-        </service>
+            android:exported="false" />
 
-        <activity android:name=".activity.LoginActivity"/>
+        <activity android:name=".activity.LoginActivity" />
 
-        <activity android:name=".activity.RequestsActivity"/>
+        <activity android:name=".activity.RequestsActivity" />
 
-        <activity android:name=".activity.RegisterActivity"/>
+        <activity android:name=".activity.RegisterActivity" />
 
-        <activity android:name=".activity.AddContactActivity"/>
+        <activity
+            android:name=".activity.AddContactActivity"
+            android:screenOrientation="portrait" />
+
         <provider
-            android:authorities="com.example.vikas.contactapp"
             android:name=".provider.CustomContentProvider"
+            android:authorities="com.example.vikas.contactapp"
             android:exported="false"
-            android:syncable="false"
-            />
+            android:syncable="false" />
 
     </application>
 

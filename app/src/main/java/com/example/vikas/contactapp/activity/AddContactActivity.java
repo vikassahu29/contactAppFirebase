@@ -3,7 +3,6 @@ package com.example.vikas.contactapp.activity;
 import android.Manifest;
 import android.content.ContentProviderOperation;
 import android.content.OperationApplicationException;
-import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.os.Bundle;
@@ -46,7 +45,7 @@ import static com.example.vikas.contactapp.utils.Utils.CONTACT_URL;
 public class AddContactActivity extends BaseActivity implements
         LoaderManager.LoaderCallbacks<Cursor> {
 
-    private SparseArray<Contact> mContactSparseArray;
+    private SparseArray<ContactView> mContactSparseArray;
 
     private ContactAdapter mAdapter;
     private Firebase mContactRef;
@@ -82,10 +81,8 @@ public class AddContactActivity extends BaseActivity implements
         mContactSparseArray = new SparseArray<>();
         mFlowLayout = (FlowLayout) findViewById(R.id.flow_layout);
         RecyclerView recyclerView = (RecyclerView) findViewById(R.id.recycler_view);
-        recyclerView.setLayoutManager(new LinearLayoutManager(this,
-                (ActivityInfo.SCREEN_ORIENTATION_PORTRAIT == getResources()
-                        .getConfiguration().orientation ? LinearLayoutManager.VERTICAL :
-                        LinearLayoutManager.HORIZONTAL), false));
+        recyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL,
+                false));
         mAdapter = new ContactAdapter(new ArrayList<Contact>());
         recyclerView.setAdapter(mAdapter);
         mContactRef = new Firebase(CONTACT_URL + PrefUtils.getUid(this));
@@ -109,7 +106,7 @@ public class AddContactActivity extends BaseActivity implements
             for (int i = 0; i < size; i++) {
                 ContentProviderOperation.Builder op = ContentProviderOperation
                         .newInsert(Contact.CONTENT_URI);
-                Contact contact = mContactSparseArray.valueAt(i);
+                Contact contact = mContactSparseArray.valueAt(i).contact;
                 Map<String, String> map = new HashMap<>();
                 map.put("name", contact.name);
                 op.withValue(Contact.NAME, contact.name);
@@ -155,7 +152,11 @@ public class AddContactActivity extends BaseActivity implements
             } catch (RemoteException | OperationApplicationException e) {
                 e.printStackTrace();
             }
-            Toast.makeText(this, R.string.contacts_saved, Toast.LENGTH_SHORT).show();
+            if (size > 0) {
+                Toast.makeText(this, R.string.contacts_saved, Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(this, R.string.nothing_to_save, Toast.LENGTH_SHORT).show();
+            }
             finish();
         }
 
@@ -290,28 +291,41 @@ public class AddContactActivity extends BaseActivity implements
     }
 
     private int addRemoveContact(Contact contact) {
-        Contact tempContact = mContactSparseArray.get(contact._id, null);
-        if (tempContact == null) {
-            if (mContactSparseArray.size() == 5) {
+        ContactView tempContactView = mContactSparseArray.get(contact._id, null);
+        if (tempContactView == null) {
+            int size = mContactSparseArray.size();
+            if (size == 5) {
                 return FULL;
             } else {
                 TextView textView = new TextView(this);
                 textView.setText(contact.name);
                 FlowLayout.LayoutParams layoutParams = new FlowLayout.LayoutParams(
                         ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-                layoutParams.setMargins(10, 0, 50, 10);
+                layoutParams.setMargins(10, 20, 10, 20);
                 textView.setLayoutParams(layoutParams);
+                textView.setBackgroundColor(getResources().getColor(R.color.colorAccent));
+                textView.setTextSize(14);
+                textView.setPadding(5, 5, 5, 5);
+                ContactView contactView = new ContactView();
+                contactView.contact = contact;
+                contactView.view = textView;
                 mFlowLayout.addView(textView);
-                mContactSparseArray.put(contact._id, contact);
+                mContactSparseArray.put(contact._id, contactView);
                 return INSERTED;
             }
         } else {
-            mContactSparseArray.remove(contact._id);
+            mFlowLayout.removeView(tempContactView.view);
+            mContactSparseArray.remove(tempContactView.contact._id);
             return REMOVED;
         }
     }
 
     private boolean isPresent(Contact contact) {
         return mContactSparseArray.get(contact._id, null) != null;
+    }
+
+    public class ContactView {
+        public Contact contact;
+        public View view;
     }
 }
