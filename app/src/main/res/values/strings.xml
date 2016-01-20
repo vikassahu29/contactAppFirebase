@@ -1,4 +1,28 @@
 <resources>
     <string name="app_name">ContactApp</string>
     <string name="action_settings">Settings</string>
+    <string name="max_contact_warning">Only 5 contacts can be selected</string>
+    <string name="contacts_saved">Contacts Saved</string>
+    <string name="email_empty_error">Email can\'t be empty</string>
+    <string name="password_empty_error">Password can\'t be empty</string>
+    <string name="signing_in">Signing In</string>
+    <string name="invalid_credentials_error">Invalid credentials provided</string>
+    <string name="network_error">Network error. Please try after some time</string>
+    <string name="unknown_error">Unknown Error Occurred</string>
+    <string name="push_notification_warning">Push notifications won\'t work</string>
+    <string name="name_length_error">Name should have at least 3 characters</string>
+    <string name="password_length_error">Password should be at least 6 characters long</string>
+    <string name="registering">Registering</string>
+    <string name="registration_message_success">You have been successfully registered. Please login to proceed</string>
+    <string name="invalid_email_error">Invalid Email</string>
+    <string name="email_exist_error">Email already registered</string>
+    <string name="email">Email</string>
+    <string name="password">Password</string>
+    <string name="login">Login</string>
+    <string name="sign_up">Sign Up</string>
+    <string name="name">Name</string>
+    <string name="register">Register</string>
+    <string name="save">Save</string>
+    <string name="loading_data">Loading data</string>
+    <string name="logout">Logout</string>
 </resources>

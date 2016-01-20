@@ -7,7 +7,7 @@ import com.firebase.client.Firebase;
 /**
  * Created by vikas on 19/1/16.
  */
-public class ContactApplication extends Application{
+public class ContactApplication extends Application {
 
     private static ContactApplication sInstance;
 

@@ -4,14 +4,17 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
-    <TextView
+    <com.wefika.flowlayout.FlowLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/flow_layout"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="asdasd"/>
+        android:gravity="start|top">
+
+    </com.wefika.flowlayout.FlowLayout>
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/recycler_view"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
+        android:layout_height="match_parent" />
 
 </LinearLayout>

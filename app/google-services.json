@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_id": "contactapp-e69de",
+    "project_number": "39342885622",
+    "name": "ContactApp"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:39342885622:android:296dd3fd6e69a488",
+        "client_id": "android:com.example.vikas.contactapp",
+        "client_type": 1,
+        "android_client_info": {
+          "package_name": "com.example.vikas.contactapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "cloud_messaging_service": {
+          "status": 2,
+          "apns_config": []
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "google_signin_service": {
+          "status": 1
+        },
+        "ads_service": {
+          "status": 1
+        }
+      }
+    }
+  ],
+  "client_info": [],
+  "ARTIFACT_VERSION": "1"
+}

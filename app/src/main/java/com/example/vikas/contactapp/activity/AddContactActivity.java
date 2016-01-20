@@ -1,13 +1,18 @@
 package com.example.vikas.contactapp.activity;
 
+import android.Manifest;
 import android.content.ContentProviderOperation;
-import android.content.Intent;
+import android.content.OperationApplicationException;
 import android.content.pm.ActivityInfo;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
+import android.os.RemoteException;
 import android.provider.ContactsContract;
+import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.LoaderManager;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v7.widget.LinearLayoutManager;
@@ -16,7 +21,6 @@ import android.util.SparseArray;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
@@ -25,30 +29,34 @@ import android.widget.Toast;
 
 import com.example.vikas.contactapp.R;
 import com.example.vikas.contactapp.entity.Contact;
+import com.example.vikas.contactapp.provider.CustomContentProvider;
 import com.example.vikas.contactapp.utils.PrefUtils;
 import com.firebase.client.Firebase;
+import com.wefika.flowlayout.FlowLayout;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.example.vikas.contactapp.utils.Utils.FIREBASE_URL;
+import static com.example.vikas.contactapp.utils.Utils.CONTACT_URL;
 
 /**
  * Created by vikas on 20/1/16.
  */
 public class AddContactActivity extends BaseActivity implements
-        LoaderManager.LoaderCallbacks<Cursor>{
+        LoaderManager.LoaderCallbacks<Cursor> {
 
     private SparseArray<Contact> mContactSparseArray;
 
-    private RecyclerView mRecyclerView;
     private ContactAdapter mAdapter;
     private Firebase mContactRef;
+    private FlowLayout mFlowLayout;
 
     private static final int INSERTED = 1;
     private static final int REMOVED = 0;
     private static final int FULL = -1;
+
+    private static final int READ_CONTACTS_PERMISSION = 1;
 
     private static final String[] PROJECTION_LIST = new String[]{
             ContactsContract.Contacts._ID,
@@ -64,16 +72,24 @@ public class AddContactActivity extends BaseActivity implements
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_contact);
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_CONTACTS) !=
+                PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.READ_CONTACTS}, READ_CONTACTS_PERMISSION);
+        } else {
+            startLoading();
+        }
         mContactSparseArray = new SparseArray<>();
-        mRecyclerView = (RecyclerView) findViewById(R.id.recycler_view);
-        mRecyclerView.setLayoutManager(new LinearLayoutManager(this,
+        mFlowLayout = (FlowLayout) findViewById(R.id.flow_layout);
+        RecyclerView recyclerView = (RecyclerView) findViewById(R.id.recycler_view);
+        recyclerView.setLayoutManager(new LinearLayoutManager(this,
                 (ActivityInfo.SCREEN_ORIENTATION_PORTRAIT == getResources()
                         .getConfiguration().orientation ? LinearLayoutManager.VERTICAL :
                         LinearLayoutManager.HORIZONTAL), false));
         mAdapter = new ContactAdapter(new ArrayList<Contact>());
-        mRecyclerView.setAdapter(mAdapter);
-        mContactRef = new Firebase(FIREBASE_URL + "/contacts/" + PrefUtils.getUid(this));
-        startLoading();
+        recyclerView.setAdapter(mAdapter);
+        mContactRef = new Firebase(CONTACT_URL + PrefUtils.getUid(this));
+
     }
 
     @Override
@@ -87,10 +103,16 @@ public class AddContactActivity extends BaseActivity implements
 
         if (item.getItemId() == R.id.action_save) {
             int size = mContactSparseArray.size();
+
+            ArrayList<ContentProviderOperation> operations = new ArrayList<>();
+
             for (int i = 0; i < size; i++) {
+                ContentProviderOperation.Builder op = ContentProviderOperation
+                        .newInsert(Contact.CONTENT_URI);
                 Contact contact = mContactSparseArray.valueAt(i);
                 Map<String, String> map = new HashMap<>();
                 map.put("name", contact.name);
+                op.withValue(Contact.NAME, contact.name);
                 if (contact.hasPhoneNumber) {
                     Cursor cursor = getContentResolver().query(
                             ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
@@ -103,6 +125,7 @@ public class AddContactActivity extends BaseActivity implements
                             contact.phoneNumber = cursor.getString(cursor.getColumnIndex(
                                     ContactsContract.CommonDataKinds.Phone.NUMBER));
                             map.put("phoneNumber", contact.phoneNumber);
+                            op.withValue(Contact.PHONE_NUMBER, contact.phoneNumber);
                         }
                         cursor.close();
                     }
@@ -118,13 +141,21 @@ public class AddContactActivity extends BaseActivity implements
                             contact.emailAddress = cursor.getString(cursor.getColumnIndex(
                                     ContactsContract.CommonDataKinds.Email.ADDRESS));
                             map.put("emailAddress", contact.emailAddress);
+                            op.withValue(Contact.EMAIL_ADDRESS, contact.emailAddress);
                         }
                         cursor.close();
                     }
                 }
+                operations.add(op.build());
                 mContactRef.push().setValue(map);
             }
-            Toast.makeText(this, "Contacts Saved", Toast.LENGTH_SHORT).show();
+            try {
+                getContentResolver().applyBatch(CustomContentProvider.CONTENT_AUTHORITY,
+                        operations);
+            } catch (RemoteException | OperationApplicationException e) {
+                e.printStackTrace();
+            }
+            Toast.makeText(this, R.string.contacts_saved, Toast.LENGTH_SHORT).show();
             finish();
         }
 
@@ -168,6 +199,22 @@ public class AddContactActivity extends BaseActivity implements
 
     }
 
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
+                                           @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        switch (requestCode) {
+            case READ_CONTACTS_PERMISSION: {
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    startLoading();
+                } else {
+                    finish();
+                }
+            }
+        }
+    }
+
     public class ContactAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
 
@@ -186,7 +233,7 @@ public class AddContactActivity extends BaseActivity implements
         @Override
         public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
             View view = LayoutInflater.from(AddContactActivity.this).inflate(
-                    R.layout.item_contact_list, parent, false);
+                    R.layout.item_contact_add, parent, false);
             return new ContactViewHolder(view);
         }
 
@@ -201,7 +248,7 @@ public class AddContactActivity extends BaseActivity implements
         }
 
         private class ContactViewHolder extends RecyclerView.ViewHolder implements
-                View.OnClickListener{
+                View.OnClickListener {
 
             private TextView mName;
             private CheckBox mCheckBox;
@@ -234,7 +281,7 @@ public class AddContactActivity extends BaseActivity implements
                         mCheckBox.setChecked(false);
                         break;
                     case FULL:
-                        Toast.makeText(v.getContext(), "Only 5 contacts can be selected",
+                        Toast.makeText(v.getContext(), R.string.max_contact_warning,
                                 Toast.LENGTH_SHORT).show();
                         break;
                 }
@@ -248,6 +295,13 @@ public class AddContactActivity extends BaseActivity implements
             if (mContactSparseArray.size() == 5) {
                 return FULL;
             } else {
+                TextView textView = new TextView(this);
+                textView.setText(contact.name);
+                FlowLayout.LayoutParams layoutParams = new FlowLayout.LayoutParams(
+                        ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+                layoutParams.setMargins(10, 0, 50, 10);
+                textView.setLayoutParams(layoutParams);
+                mFlowLayout.addView(textView);
                 mContactSparseArray.put(contact._id, contact);
                 return INSERTED;
             }

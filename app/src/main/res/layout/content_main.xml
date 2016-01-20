@@ -17,7 +17,6 @@
         android:id="@+id/tv_email"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="email"
         android:textSize="40sp" />
 
     <TextView
@@ -28,7 +27,6 @@
         android:drawableEnd="@android:drawable/ic_menu_edit"
         android:drawablePadding="10dp"
         android:drawableRight="@android:drawable/ic_menu_edit"
-        android:text="name"
         android:textSize="40sp"
         android:visibility="visible" />
 
@@ -37,7 +35,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@id/tv_email"
-        android:text="name"
+        android:inputType="textPersonName"
         android:textSize="40sp"
         android:visibility="gone" />
 
@@ -50,7 +48,7 @@
         android:layout_marginStart="20dp"
         android:layout_toEndOf="@id/et_name"
         android:layout_toRightOf="@id/et_name"
-        android:text="Save"
+        android:text="@string/save"
         android:visibility="gone" />
 
 </RelativeLayout>
