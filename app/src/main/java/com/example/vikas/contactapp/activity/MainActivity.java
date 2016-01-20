@@ -86,12 +86,28 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.fab_add_contact:
+                Intent intent = new Intent(MainActivity.this, AddContactActivity.class);
+                startActivity(intent);
                 break;
             case R.id.fab_requests:
                 break;
             case R.id.tv_name:
+                mName.setVisibility(View.GONE);
+                mEtName.setText(mName.getText());
+                mEtName.setVisibility(View.VISIBLE);
+                mSave.setVisibility(View.VISIBLE);
                 break;
             case R.id.btn_save:
+                String name = mEtName.getText().toString();
+                if (name.length() < 3) {
+                    mEtName.setError("Name should have at least 3 characters");
+                    break;
+                }
+                mProfileRef.setValue(name);
+                mName.setText(name);
+                mEtName.setVisibility(View.GONE);
+                mSave.setVisibility(View.GONE);
+                mName.setVisibility(View.VISIBLE);
                 break;
         }
     }
